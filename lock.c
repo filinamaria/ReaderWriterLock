@@ -125,13 +125,13 @@ void* writer(void *d){
 
 int main(){
 	pthread_t thread[3];
-	int a = 1, b = 2, c = 3;
+	int id_a = 1, id_b = 2, id_c = 3;
 	
 	lock = initlock();
 	
-	pthread_create(&thread[0], NULL, &writer, &a);
-	pthread_create(&thread[1], NULL, &writer, &b);
-	pthread_create(&thread[2], NULL, &reader, &c);
+	pthread_create(&thread[0], NULL, &writer, &id_a);
+	pthread_create(&thread[1], NULL, &writer, &id_b);
+	pthread_create(&thread[2], NULL, &reader, &id_c);
 	
 	pthread_join(thread[0], NULL);
 	pthread_join(thread[1], NULL);
