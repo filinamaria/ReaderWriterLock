@@ -93,7 +93,11 @@ void readunlock (rwl *lock) {
 void writeunlock (rwl *lock) {
 	pthread_mutex_lock (lock->mut);
 	lock->writers--;
-	pthread_cond_broadcast (lock->readOK);
+	if(lock->waiting){
+		pthread_cond_broadcast (lock->writeOK);
+	}else{
+		pthread_cond_broadcast (lock->readOK);
+	}
 	pthread_mutex_unlock (lock->mut);
 }
 
@@ -109,7 +113,7 @@ void* reader(void *d){
 	int id = *((int *) d);
 	readlock(lock, id);
 	printf("reading %d\n", id);
-	usleep(1000*1000);
+	usleep(1000);
 	printf("read %d done\n", id);
 	readunlock(lock);
 }
@@ -124,18 +128,27 @@ void* writer(void *d){
 }
 
 int main(){
-	pthread_t thread[3];
-	int a = 1, b = 2, c = 3;
+	int numberOfThread = 5;
+	int id[numberOfThread];
+	pthread_t thread[numberOfThread];
 	
 	lock = initlock();
 	
-	pthread_create(&thread[0], NULL, &writer, &a);
-	pthread_create(&thread[1], NULL, &writer, &b);
-	pthread_create(&thread[2], NULL, &reader, &c);
+	int i;
+	for(i = 0; i < numberOfThread; i++){
+		id[i] = i;
+	}
 	
-	pthread_join(thread[0], NULL);
-	pthread_join(thread[1], NULL);
-	pthread_join(thread[2], NULL);
+	pthread_create(&thread[0], NULL, &writer, &id[0]);
+	pthread_create(&thread[1], NULL, &reader, &id[1]);
+	pthread_create(&thread[2], NULL, &writer, &id[2]);
+	pthread_create(&thread[3], NULL, &writer, &id[3]);
+	pthread_create(&thread[4], NULL, &reader, &id[4]);
 	
+	int j;
+	for(j = 0; j < numberOfThread; j++){
+		pthread_join(thread[j], NULL);
+	}
+		
 	return 0;
 }
