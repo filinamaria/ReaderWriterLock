@@ -139,6 +139,8 @@ int main(){
 		id[i] = i;
 	}
 	
+	lock = initlock();
+	
 	pthread_create(&thread[0], NULL, &writer, &id[0]);
 	pthread_create(&thread[1], NULL, &reader, &id[1]);
 	pthread_create(&thread[2], NULL, &writer, &id[2]);
